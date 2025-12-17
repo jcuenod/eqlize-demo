@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>eqlize browser demo (Pyodide)</title>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 980px; margin: 24px auto; padding: 0 16px; box-sizing: border-box; }
+    textarea { width: 100%; min-height: 160px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; box-sizing: border-box; }
+    pre { background: #111; color: #eee; padding: 12px; overflow: auto; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .row > * { margin: 6px 0; }
+    button { padding: 8px 12px; }
+    code { background: #f3f3f3; padding: 2px 4px; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .step-item { display:flex; gap:8px; align-items:center; margin:6px 0; }
+    .step-icon { width:18px; height:18px; display:inline-block; }
+    .step-text { color:#333; font-size:13px; }
+    .step-done .step-text { color:#0b8f3a; font-weight:700; }
+    .tab-btn { background:transparent;border:1px solid #ddd;padding:6px 10px;border-radius:6px;cursor:pointer }
+    .tab-btn[aria-pressed="true"] { background:#0b76ef;color:#fff;border-color:#0b76ef }
+    .panel { margin-top:8px }
+  </style>
+</head>
+<body>
+  <h1>eqlize browser demo</h1>
+  <a href="https://github.com/jcuenod/eqlize" target="_blank">View on GitHub</a>
+
+  <!-- <div class="row">
+    <button id="btnInit">Initialize runtime</button>
+    <label>
+      Or upload your own .sqlite:
+      <input id="fileDb" type="file" accept=".sqlite,.db,application/octet-stream" />
+    </label>
+  </div> -->
+
+  <p>
+    Database path in Pyodide FS: <code id="dbPathLabel">/data/demo.sqlite</code>
+  </p>
+
+  <details style="margin-bottom:16px;">
+    <summary style="font-weight:bold;cursor:pointer;">View Schema</summary>
+    <p id="schemaOut" style="background:#f3f3f3;color:#111;overflow:auto;white-space:pre-wrap;word-break:break-word;"></p>
+  </details>
+
+  <textarea id="query" spellcheck="false"># Put an EdgeQL query here
+# Example:
+select People { id, name } limit 3
+  </textarea>
+  <button id="btnRun" disabled>Run EdgeQL</button>
+
+  <h3>Output</h3>
+  <div id="resultsWrapper">
+    <pre id="sqlOut"></pre>
+
+    <div id="outputTabs" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+      <button id="tabTable" class="tab-btn" aria-pressed="true">Table</button>
+      <button id="tabJson" class="tab-btn" aria-pressed="false">Raw JSON</button>
+    </div>
+
+    <div id="tabPanels" style="overflow-x: auto;">
+      <div id="panelTable" class="panel" aria-hidden="false">
+        <div id="results"> </div>
+      </div>
+      <div id="panelJson" class="panel" aria-hidden="true" style="display:none;">
+        <pre id="jsonOut" style="white-space:pre-wrap;word-break:break-word;background:#fff;color:#111;padding:12px;border-radius:6px;"> </pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Initialization overlay -->
+  <div id="initStatus" aria-hidden="true" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;">
+    <div id="initOverlayBg" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(2px);"></div>
+    <div id="initOverlayCard" style="position:relative;z-index:2;max-width:720px;width:90%;background:linear-gradient(180deg,#fff,#f7f7f9);border-radius:8px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,0.35);color:#111;">
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div id="spinner" aria-hidden="true" style="width:36px;height:36px;display:none;border-radius:50%;border:4px solid #eee;border-top-color:#0b76ef;animation:spin 1s linear infinite"></div>
+        <div style="flex:1">
+          <div id="statusMsg" style="font-weight:600;font-size:16px;color:#0b2f61;">Not initialized</div>
+          <div id="statusStepsWrap" style="font-size:13px;color:#333;margin-top:8px;">
+            <div id="stepsList"></div>
+          </div>
+        </div>
+      </div>
+      <div id="overlayLog" style="margin-top:12px;background:#111;color:#eee;padding:10px;border-radius:6px;max-height:220px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:13px;"></div>
+    </div>
+  </div>
+
+  <script type="module" src="scripts/main.js"></script>
+</body>
+</html>
